@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Melo Engenharia - Gestão MCMV (Pro)</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- html2pdf.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            oliva: {
+              DEFAULT: '#3B4E32',
+              dark: '#2A3824',
+              light: '#4A623F',
+              soft: '#F4F6F3'
+            },
+            dourado: {
+              DEFAULT: '#D4AF37',
+              dark: '#AA820A',
+              light: '#F3E5AB'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col md:flex-row">
+
+  <!-- SIDEBAR FIXO -->
+  <aside class="bg-oliva-dark text-white w-full md:w-64 flex-shrink-0 flex flex-col justify-between border-b md:border-b-0 md:border-r border-dourado/30 shadow-xl">
+    <div>
+      <!-- LOGO E TÍTULO -->
+      <div class="p-5 border-b border-oliva-light/40 flex items-center gap-3">
+        <div class="p-2.5 bg-oliva-light rounded-xl text-dourado border border-dourado/40 shadow-inner">
+          <i data-lucide="home" class="w-7 h-7"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg text-white tracking-wide">MELO ENGENHARIA</h1>
+          <p class="text-xs text-dourado font-medium flex items-center gap-1">
+            <i data-lucide="hard-hat" class="w-3 h-3"></i> Gestão MCMV
+          </p>
+        </div>
+      </div>
+
+      <!-- SELEÇÃO DE PERFIL SIMULADO -->
+      <div class="px-4 py-3 bg-oliva/60 border-b border-oliva-light/30">
+        <label class="block text-xs text-dourado mb-1 font-semibold flex items-center justify-between">
+          <span>PERFIL ATIVO</span>
+          <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-dourado text-oliva-dark">Tempo Real</span>
+        </label>
+        <select id="userRoleSelect" onchange="changeRole(this.value)" class="w-full text-xs bg-oliva-dark border border-dourado/40 text-white rounded p-1.5 focus:outline-none focus:border-dourado">
+          <option value="dono">👨‍💼 Samuel Melo (Dono)</option>
+          <option value="engenheiro">👷‍♂️ Engenheiro (Fiscal / PLS)</option>
+          <option value="mestre">🏗️ Mestre de Obra (Campo)</option>
+        </select>
+      </div>
+
+      <!-- MENU DE NAVEGAÇÃO -->
+      <nav class="p-3 space-y-1">
+        <button onclick="showTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all bg-dourado text-oliva-dark font-semibold">
+          <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard General
+        </button>
+        <button onclick="showTab('obras')" id="nav-obras" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium text-gray-200 hover:bg-oliva-light hover:text-white transition-all">
+          <i data-lucide="building" class="w-5 h-5 text-dourado"></i> Obras & Cadastros
+        </button>
+        <button onclick="showTab('rdo')" id="nav-rdo" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium text-gray-200 hover:bg-oliva-light hover:text-white transition-all">
+          <i data-lucide="clipboard-check" class="w-5 h-5 text-dourado"></i> Diário de Obra (RDO)
+        </button>
+        <button onclick="showTab('mcmv')" id="nav-mcmv" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium text-gray-200 hover:bg-oliva-light hover:text-white transition-all">
+          <i data-lucide="building-2" class="w-5 h-5 text-dourado"></i> Medições Caixa (PLS)
+        </button>
+        <button onclick="showTab('financeiro')" id="nav-financeiro" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium text-gray-200 hover:bg-oliva-light hover:text-white transition-all">
+          <i data-lucide="dollar-sign" class="w-5 h-5 text-dourado"></i> Financeiro & Caixa
+        </button>
+        <button onclick="showTab('relatorios')" id="nav-relatorios" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium text-gray-200 hover:bg-oliva-light hover:text-white transition-all">
+          <i data-lucide="file-text" class="w-5 h-5 text-dourado"></i> Relatórios & Envio
+        </button>
+      </nav>
+    </div>
+
+    <div class="p-4 border-t border-oliva-light/30 text-xs text-gray-300 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>Sincronizado</span>
+      </div>
+      <span class="text-dourado font-mono">v2.0 Pro</span>
+    </div>
+  </aside>
+
+  <!-- ÁREA PRINCIPAL DE CONTEÚDO -->
+  <main class="flex-1 p-4 md:p-8 overflow-y-auto max-w-7xl">
+
+    <!-- HEADER / FILTROS GLOBAIS -->
+    <header class="mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h2 id="pageTitle" class="text-xl font-bold text-oliva-dark flex items-center gap-2">
+          <i data-lucide="layout-dashboard" class="text-dourado-dark"></i> Dashboard de Controle
+        </h2>
+        <p class="text-xs text-gray-500">Acompanhamento operacional e financeiro em tempo real</p>
+      </div>
+
+      <!-- SELETORES/DROPDOWNS GLOBAL -->
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- Menu Suspenso Obra -->
+        <div class="flex flex-col">
+          <label class="text-[10px] uppercase tracking-wider text-gray-500 font-bold mb-0.5">Obra Selecionada</label>
+          <select id="globalObraSelect" onchange="changeObraGlobal(this.value)" class="bg-gray-50 border border-gray-300 text-gray-800 text-xs rounded-lg p-2 focus:ring-oliva focus:border-oliva font-bold">
+            <!-- Dinâmico via JS -->
+          </select>
+        </div>
+
+        <!-- Menu Suspenso Data -->
+        <div class="flex flex-col">
+          <label class="text-[10px] uppercase tracking-wider text-gray-500 font-bold mb-0.5">Data Referência</label>
+          <input type="date" id="globalDateSelect" value="2026-10-18" onchange="triggerSync()" class="bg-gray-50 border border-gray-300 text-gray-800 text-xs rounded-lg p-1.5 focus:ring-oliva focus:border-oliva font-medium">
+        </div>
+      </div>
+    </header>
+
+    <!-- BANNER DE ALERTA DE PERFIL -->
+    <div id="roleAlert" class="mb-6 p-3 bg-dourado-light/40 border border-dourado rounded-lg text-xs text-oliva-dark flex items-center justify-between">
+      <span class="flex items-center gap-2">
+        <i data-lucide="shield-alert" class="w-4 h-4 text-dourado-dark"></i>
+        <span>Modo <b>Samuel Melo (Dono)</b>: Acesso completo a finanças, edições e cadastros de obras.</span>
+      </span>
+      <span class="text-[10px] bg-oliva text-white px-2 py-0.5 rounded font-mono">Tempo Real Ativo</span>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ABA 1: DASHBOARD GENERAL -->
+    <!-- ========================================== -->
+    <section id="tab-dashboard" class="tab-content space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <div class="bg-white p-4 rounded-xl border-l-4 border-oliva shadow-sm">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-xs font-semibold text-gray-500 uppercase">Saldo em Caixa (Obra)</p>
+              <h3 id="kpi-saldo" class="text-2xl font-extrabold text-oliva-dark mt-1">R$ 0,00</h3>
+            </div>
+            <div class="p-2 bg-oliva-soft text-oliva rounded-lg">
+              <i data-lucide="wallet" class="w-6 h-6"></i>
+            </div>
+          </div>
+          <p class="text-[11px] text-emerald-600 mt-2 font-medium flex items-center gap-1">
+            <i data-lucide="trending-up" class="w-3 h-3"></i> Repasses Caixa MCMV
+          </p>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border-l-4 border-dourado shadow-sm">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-xs font-semibold text-gray-500 uppercase">Avanço Físico (PLS)</p>
+              <h3 id="kpi-pls" class="text-2xl font-extrabold text-gray-800 mt-1">0%</h3>
+            </div>
+            <div class="p-2 bg-dourado-light/40 text-dourado-dark rounded-lg">
+              <i data-lucide="wrench" class="w-6 h-6"></i>
+            </div>
+          </div>
+          <div class="w-full bg-gray-200 h-2 rounded-full mt-3 overflow-hidden">
+            <div id="kpi-pls-bar" class="bg-dourado h-2 rounded-full" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border-l-4 border-blue-600 shadow-sm">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-xs font-semibold text-gray-500 uppercase">Total Unidades</p>
+              <h3 id="kpi-unidades" class="text-xl font-bold text-gray-800 mt-1">0 Unidades</h3>
+            </div>
+            <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+              <i data-lucide="home" class="w-6 h-6"></i>
+            </div>
+          </div>
+          <p class="text-[11px] text-blue-600 mt-2 font-medium">Programa Minha Casa Minha Vida</p>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border-l-4 border-amber-500 shadow-sm">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-xs font-semibold text-gray-500 uppercase">Equipe em Campo</p>
+              <h3 id="kpi-operarios" class="text-2xl font-extrabold text-gray-800 mt-1">0 Operários</h3>
+            </div>
+            <div class="p-2 bg-amber-50 text-amber-600 rounded-lg">
+              <i data-lucide="users" class="w-6 h-6"></i>
+            </div>
+          </div>
+          <p class="text-[11px] text-gray-500 mt-2">Atualizado via RDO</p>
+        </div>
+
+      </div>
+
+      <!-- FEED EM TEMPO REAL -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+        <div class="flex justify-between items-center mb-4 pb-2 border-b">
+          <h3 class="font-bold text-oliva-dark flex items-center gap-2">
+            <i data-lucide="activity" class="text-dourado-dark"></i>
+            Atividades Recentes do Canteiro
+          </h3>
+          <span class="text-xs text-gray-400">Tempo Real</span>
+        </div>
+        <div id="liveFeedContainer" class="space-y-3 max-h-80 overflow-y-auto pr-1">
+          <!-- Itens Inseridos pelo JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ABA 2: CADASTRO E GESTÃO DE OBRAS (NOVO) -->
+    <!-- ========================================== -->
+    <section id="tab-obras" class="tab-content hidden space-y-6">
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <div class="flex justify-between items-center mb-6 pb-2 border-b">
+          <div>
+            <h3 class="text-lg font-bold text-oliva-dark flex items-center gap-2">
+              <i data-lucide="building" class="text-dourado-dark"></i> Gestão e Cadastro de Obras
+            </h3>
+            <p class="text-xs text-gray-500">Cadastre e edite empreendimentos atendidos pelo Programa MCMV</p>
+          </div>
+          <button onclick="openObraModal()" class="bg-dourado hover:bg-dourado-dark text-oliva-dark font-bold px-4 py-2 rounded-lg text-xs flex items-center gap-2 shadow">
+            <i data-lucide="plus" class="w-4 h-4"></i> Nova Obra
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-oliva-dark text-white uppercase text-[10px]">
+              <tr>
+                <th class="p-3 rounded-l">Empreendimento</th>
+                <th class="p-3">Endereço / Local</th>
+                <th class="p-3">Qtd. Unidades</th>
+                <th class="p-3">Orçamento Previsto</th>
+                <th class="p-3">Status da Obra</th>
+                <th class="p-3 rounded-r text-center">Ações (CRUD)</th>
+              </tr>
+            </thead>
+            <tbody id="obrasTable" class="divide-y divide-gray-200">
+              <!-- Preenchido via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ABA 3: DIÁRIO DE OBRA (RDO - CÂMERA MOBILE) -->
+    <!-- ========================================== -->
+    <section id="tab-rdo" class="tab-content hidden space-y-6">
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <div class="flex justify-between items-center mb-6 pb-2 border-b">
+          <div>
+            <h3 class="text-lg font-bold text-oliva-dark flex items-center gap-2">
+              <i data-lucide="hard-hat" class="text-dourado-dark"></i> Registro Diário de Obra (RDO)
+            </h3>
+            <p class="text-xs text-gray-500">Com abertura automática de câmera do celular para foto</p>
+          </div>
+        </div>
+
+        <form id="rdoForm" onsubmit="saveRDO(event)" class="space-y-4">
+          <input type="hidden" id="rdoEditId" value="">
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">Condições Climáticas</label>
+              <select id="rdoClima" class="w-full text-xs p-2.5 bg-gray-50 border border-gray-300 rounded-lg">
+                <option value="☀️ Sol / Bom">☀️ Sol / Tempo Bom</option>
+                <option value="⛅ Nublado">⛅ Nublado</option>
+                <option value="🌧️ Chuva Moderada">🌧️ Chuva Moderada</option>
+                <option value="⛈️ Chuva Forte (Impraticável)">⛈️ Chuva Forte (Impraticável)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">Efetivo de Pessoal (Operários)</label>
+              <input type="number" id="rdoEfetivo" value="15" required class="w-full text-xs p-2.5 bg-gray-50 border border-gray-300 rounded-lg">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">Etapa Principal em Execução</label>
+              <select id="rdoEtapa" class="w-full text-xs p-2.5 bg-gray-50 border border-gray-300 rounded-lg">
+                <option value="Fundação e Baldrame">Fundação e Baldrame</option>
+                <option value="Alvenaria e Paredes">Alvenaria e Paredes</option>
+                <option value="Cobertura e Telhado">Cobertura e Telhado</option>
+                <option value="Instalações Elétricas/Hidráulicas">Instalações Elétricas/Hidráulicas</option>
+                <option value="Acabamento e Pintura">Acabamento e Pintura</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1">Descrição dos Serviços Executados no Dia</label>
+            <textarea id="rdoDescricao" rows="3" placeholder="Descreva os avanços físicos..." class="w-full text-xs p-2.5 bg-gray-50 border border-gray-300 rounded-lg" required></textarea>
+          </div>
+
+          <!-- BOTÃO DISPARADOR DE CÂMERA AUTOMÁTICA -->
+          <div class="p-4 bg-oliva-soft/60 rounded-xl border border-oliva/20">
+            <label class="block text-xs font-bold text-oliva-dark mb-2">📸 Registro Fotográfico do Canteiro</label>
+            <div class="flex items-center gap-3">
+              <!-- ATRIBUTO capture="environment" ABRE A CÂMERA DO CELULAR AUTOMATICAMENTE -->
+              <label class="cursor-pointer bg-dourado hover:bg-dourado-dark text-oliva-dark font-bold px-4 py-2.5 rounded-lg text-xs flex items-center gap-2 shadow">
+                <i data-lucide="camera" class="w-5 h-5"></i>
+                <span>Tirar Foto (Abre Câmera)</span>
+                <input type="file" accept="image/*" capture="environment" id="rdoFoto" onchange="previewImage(event)" class="hidden">
+              </label>
+              <span id="fileNameDisplay" class="text-xs text-gray-500 italic">Clique para fotografar no local</span>
+            </div>
+            <div id="imagePreviewContainer" class="mt-3 hidden">
+              <img id="imagePreview" src="" alt="Prévia" class="h-36 rounded-lg border border-gray-300 object-cover shadow-sm">
+            </div>
+          </div>
+
+          <div class="pt-3 flex justify-end gap-2">
+            <button type="button" onclick="cancelRDOEdit()" id="btnCancelRdo" class="hidden px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 text-xs font-bold rounded-lg">Cancelar Edição</button>
+            <button type="submit" id="btnSubmitRdo" class="bg-oliva hover:bg-oliva-dark text-white font-bold px-6 py-2.5 rounded-lg text-xs flex items-center gap-2 shadow">
+              <i data-lucide="save" class="w-4 h-4 text-dourado"></i> Salvar Diário de Obra
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+        <h4 class="font-bold text-oliva-dark mb-4 text-sm flex items-center gap-2">
+          <i data-lucide="history" class="w-4 h-4 text-dourado-dark"></i>
+          Histórico de Diários Registrados
+        </h4>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-oliva-dark text-white uppercase text-[10px]">
+              <tr>
+                <th class="p-2.5">Data/Hora</th>
+                <th class="p-2.5">Autor</th>
+                <th class="p-2.5">Clima</th>
+                <th class="p-2.5">Efetivo</th>
+                <th class="p-2.5">Resumo dos Serviços</th>
+                <th class="p-2.5 text-center">Foto</th>
+                <th class="p-2.5 text-center">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="rdoHistoryTable" class="divide-y divide-gray-200">
+              <!-- JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ABA 4: MEDIÇÕES CAIXA (PLS / STATUS CRUD) -->
+    <!-- ========================================== -->
+    <section id="tab-mcmv" class="tab-content hidden space-y-6">
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <div class="flex justify-between items-center mb-6 pb-2 border-b">
+          <div>
+            <h3 class="text-lg font-bold text-oliva-dark flex items-center gap-2">
+              <i data-lucide="building-2" class="text-dourado-dark"></i> Gestão das Etapas do PLS (Caixa)
+            </h3>
+            <p class="text-xs text-gray-500">Edite percentuais, altere status da medição ou adicione novas etapas</p>
+          </div>
+          <button onclick="openPlsModal()" class="bg-dourado hover:bg-dourado-dark text-oliva-dark font-bold px-4 py-2 rounded-lg text-xs flex items-center gap-1 shadow">
+            <i data-lucide="plus" class="w-4 h-4"></i> Nova Etapa no PLS
+          </button>
+        </div>
+
+        <div id="plsListContainer" class="space-y-4">
+          <!-- Gerado via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ABA 5: FINANCEIRO (CRUD DE LANÇAMENTOS) -->
+    <!-- ========================================== -->
+    <section id="tab-financeiro" class="tab-content hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- FORMULÁRIO FINANCEIRO -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+          <h3 id="finFormTitle" class="text-md font-bold text-oliva-dark mb-4 flex items-center gap-2 border-b pb-2">
+            <i data-lucide="plus-circle" class="text-dourado-dark"></i> Novo Lançamento
+          </h3>
+
+          <form onsubmit="saveFinanceiro(event)" class="space-y-3">
+            <input type="hidden" id="finEditId" value="">
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">Tipo de Movimentação</label>
+              <select id="finTipo" class="w-full text-xs p-2 bg-gray-50 border border-gray-300 rounded-lg font-semibold">
+                <option value="Entrada (Repasse Caixa)">🟢 Entrada (Repasse Caixa MCMV)</option>
+                <option value="Entrada (Aporte/Sinal)">🟢 Entrada (Aporte / Sinal)</option>
+                <option value="Saída (Material/Insumo)">🔴 Saída (Material de Construção)</option>
+                <option value="Saída (Mão de Obra)">🔴 Saída (Mão de Obra / Empreiteiro)</option>
+                <option value="Saída (Despesa Operacional)">🔴 Saída (Equipamento / Logística)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">Status do Pagamento</label>
+              <select id="finStatus" class="w-full text-xs p-2 bg-gray-50 border border-gray-300 rounded-lg font-bold text-oliva-dark">
+                <option value="Pago / Recebido">✅ Pago / Recebido</option>
+                <option value="Pendente / Agendado">⏳ Pendente / Agendado</option>
+                <option value="Em Processamento Caixa">🏛️ Em Processamento Caixa</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">Descrição / Fornecedor</label>
+              <input type="text" id="finDescricao" placeholder="Ex: Compra de cimento" required class="w-full text-xs p-2 bg-gray-50 border border-gray-300 rounded-lg">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">Valor (R$)</label>
+              <input type="number" step="0.01" id="finValor" placeholder="0.00" required class="w-full text-xs p-2 bg-gray-50 border border-gray-300 rounded-lg font-bold">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">Data Vencimento/Pagamento</label>
+              <input type="date" id="finData" value="2026-10-18" required class="w-full text-xs p-2 bg-gray-50 border border-gray-300 rounded-lg">
+            </div>
+
+            <div class="pt-2 flex justify-end gap-2">
+              <button type="button" onclick="cancelFinEdit()" id="btnCancelFin" class="hidden px-3 py-2 bg-gray-300 text-xs font-bold rounded-lg">Cancelar</button>
+              <button type="submit" id="btnSubmitFin" class="w-full py-2.5 bg-oliva hover:bg-oliva-dark text-white font-bold rounded-lg text-xs flex items-center justify-center gap-2 shadow">
+                <i data-lucide="check" class="w-4 h-4 text-dourado"></i> Salvar Lançamento
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- TABELA FINANCEIRA COM BOTOES DE EDITAR/EXCLUIR -->
+        <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+          <h3 class="text-md font-bold text-oliva-dark mb-4 flex items-center justify-between border-b pb-2">
+            <span>Extrato da Obra</span>
+            <span class="text-xs text-gray-500 font-normal">Controle de entradas e saídas</span>
+          </h3>
+
+          <div class="overflow-x-auto max-h-96 overflow-y-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-oliva-dark text-white uppercase text-[10px] sticky top-0">
+                <tr>
+                  <th class="p-2.5">Data</th>
+                  <th class="p-2.5">Status</th>
+                  <th class="p-2.5">Descrição</th>
+                  <th class="p-2.5 text-right">Valor</th>
+                  <th class="p-2.5 text-center">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="financeiroTable" class="divide-y divide-gray-200">
+                <!-- JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ABA 6: RELATÓRIOS E ENVIO -->
+    <!-- ========================================== -->
+    <section id="tab-relatorios" class="tab-content hidden space-y-6">
+      <div id="pdfReportArea" class="bg-white p-8 rounded-xl shadow-lg border border-gray-300 max-w-4xl mx-auto">
+        <div class="flex justify-between items-center border-b-2 border-dourado pb-4 mb-6">
+          <div class="flex items-center gap-3">
+            <div class="p-3 bg-oliva text-dourado rounded-xl">
+              <i data-lucide="home" class="w-8 h-8"></i>
+            </div>
+            <div>
+              <h2 class="text-xl font-extrabold text-oliva-dark">MELO ENGENHARIA</h2>
+              <p class="text-xs text-gray-600 font-medium">Relatório Executivo de Acompanhamento MCMV</p>
+            </div>
+          </div>
+          <div class="text-right text-xs">
+            <p class="font-bold text-oliva-dark">Data: <span id="repData">18/10/2026</span></p>
+            <p class="text-gray-500">Obra: <span id="repObra">-</span></p>
+            <p class="text-dourado-dark font-semibold">Responsável: Samuel Melo</p>
+          </div>
+        </div>
+
+        <div class="space-y-6 text-xs text-gray-800">
+          <div>
+            <h4 class="font-bold text-sm text-oliva-dark uppercase tracking-wider mb-2 bg-oliva-soft p-2 rounded border-l-4 border-dourado">
+              1. Status da Obra & Avanço Físico
+            </h4>
+            <div class="grid grid-cols-3 gap-4 text-center mt-3">
+              <div class="p-3 bg-gray-50 rounded border">
+                <p class="text-[10px] text-gray-500 uppercase">Avanço Físico PLS</p>
+                <p id="repAvisoFisico" class="text-lg font-bold text-oliva-dark">0%</p>
+              </div>
+              <div class="p-3 bg-gray-50 rounded border">
+                <p class="text-[10px] text-gray-500 uppercase">Saldo de Caixa</p>
+                <p id="repSaldoCaixa" class="text-sm font-bold text-emerald-700">R$ 0,00</p>
+              </div>
+              <div class="p-3 bg-gray-50 rounded border">
+                <p class="text-[10px] text-gray-500 uppercase">Unidades MCMV</p>
+                <p id="repUnidades" class="text-sm font-bold text-blue-700">0 Unid.</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h4 class="font-bold text-sm text-oliva-dark uppercase tracking-wider mb-2 bg-oliva-soft p-2 rounded border-l-4 border-dourado">
+              2. Último Registro do Diário de Obra (RDO)
+            </h4>
+            <div id="repRdoContent" class="p-3 bg-gray-50 rounded border space-y-2">
+              <p class="text-gray-500">Nenhum RDO registrado para esta obra.</p>
+            </div>
+          </div>
+
+          <div>
+            <h4 class="font-bold text-sm text-oliva-dark uppercase tracking-wider mb-2 bg-oliva-soft p-2 rounded border-l-4 border-dourado">
+              3. Foto da Obra
+            </h4>
+            <div class="flex justify-center p-2 bg-gray-50 rounded border">
+              <img id="repFotoImg" src="https://images.unsplash.com/photo-1541888946425-d0fbb186a5b7?auto=format&fit=crop&w=600&q=80" class="max-h-56 rounded border shadow-sm">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h4 class="font-bold text-oliva-dark text-sm">Ações de Transmissão</h4>
+          <p class="text-xs text-gray-500">Exporte ou envie o relatório da obra selecionada</p>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <button onclick="downloadPDF()" class="px-4 py-2 bg-red-700 hover:bg-red-800 text-white font-bold rounded-lg text-xs flex items-center gap-2 shadow">
+            <i data-lucide="file-text" class="w-4 h-4"></i> Baixar PDF
+          </button>
+          <button onclick="sendWhatsApp()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs flex items-center gap-2 shadow">
+            <i data-lucide="message-square" class="w-4 h-4"></i> Enviar WhatsApp
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL CADASTRO/EDIÇÃO DE OBRA -->
+  <div id="obraModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 border border-dourado">
+      <h3 id="obraModalTitle" class="text-lg font-bold text-oliva-dark mb-4 border-b pb-2">Cadastrar Nova Obra</h3>
+      <form onsubmit="saveObra(event)" class="space-y-3">
+        <input type="hidden" id="obraEditId" value="">
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">Nome do Empreendimento</label>
+          <input type="text" id="obraNome" required placeholder="Ex: Residencial Flores MCMV" class="w-full text-xs p-2.5 border rounded-lg">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">Endereço / Cidade</label>
+          <input type="text" id="obraEndereco" required placeholder="Ex: Manaus - AM" class="w-full text-xs p-2.5 border rounded-lg">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1">Qtd. Unidades</label>
+            <input type="number" id="obraUnidades" required placeholder="32" class="w-full text-xs p-2.5 border rounded-lg">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1">Orçamento (R$)</label>
+            <input type="number" step="0.01" id="obraOrcamento" required placeholder="1200000" class="w-full text-xs p-2.5 border rounded-lg">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">Status Atual da Obra</label>
+          <select id="obraStatus" class="w-full text-xs p-2.5 border rounded-lg font-bold">
+            <option value="Em Planejamento">Em Planejamento</option>
+            <option value="Em Execução / Canteiro">Em Execução / Canteiro</option>
+            <option value="Aguardando Vistoria Caixa">Aguardando Vistoria Caixa</option>
+            <option value="Concluída">Concluída</option>
+          </select>
+        </div>
+        <div class="pt-3 flex justify-end gap-2">
+          <button type="button" onclick="closeObraModal()" class="px-4 py-2 bg-gray-200 text-xs font-bold rounded-lg">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-oliva text-white font-bold text-xs rounded-lg shadow">Salvar Obra</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL CADASTRO/EDIÇÃO ETAPA PLS -->
+  <div id="plsModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 border border-dourado">
+      <h3 id="plsModalTitle" class="text-lg font-bold text-oliva-dark mb-4 border-b pb-2">Etapa do PLS</h3>
+      <form onsubmit="savePlsStage(event)" class="space-y-3">
+        <input type="hidden" id="plsEditId" value="">
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">Nome da Etapa</label>
+          <input type="text" id="plsNome" required placeholder="Ex: Revestimento Externo" class="w-full text-xs p-2.5 border rounded-lg">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">Valor da Parcela CEF (R$)</label>
+          <input type="number" step="0.01" id="plsValor" required placeholder="50000" class="w-full text-xs p-2.5 border rounded-lg">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">Status da Etapa</label>
+          <select id="plsStatus" class="w-full text-xs p-2.5 border rounded-lg font-bold">
+            <option value="Pendente">Pendente</option>
+            <option value="Em Andamento">Em Andamento</option>
+            <option value="Pronto p/ Vistoria CEF">Pronto p/ Vistoria CEF</option>
+            <option value="Concluído / Liberado">Concluído / Liberado</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">Percentual Concluído (%)</label>
+          <input type="number" min="0" max="100" id="plsPct" required value="0" class="w-full text-xs p-2.5 border rounded-lg">
+        </div>
+        <div class="pt-3 flex justify-end gap-2">
+          <button type="button" onclick="closePlsModal()" class="px-4 py-2 bg-gray-200 text-xs font-bold rounded-lg">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-oliva text-white font-bold text-xs rounded-lg shadow">Salvar Etapa</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+    const syncChannel = new BroadcastChannel('melo_mcmv_sync');
+
+    // ESTADO GLOBAL COM SUPORTE MULTI-OBRAS E CRUD COMPLETO
+    let state = {
+      selectedObraId: 1,
+      role: 'dono',
+      dataRef: '2026-10-18',
+      obras: [
+        { id: 1, nome: "Residencial Viver Bem - Etapa 1", endereco: "Manaus - AM", unidades: 24, orcamento: 1850000.00, status: "Em Execução / Canteiro" },
+        { id: 2, nome: "Loteamento Minha Casa I", endereco: "Iranduba - AM", unidades: 40, orcamento: 2900000.00, status: "Em Planejamento" }
+      ],
+      rdos: [
+        { id: 101, obraId: 1, dataHora: "18/10/2026 09:00", autor: "Mestre Raimundo", clima: "☀️ Sol / Bom", efetivo: 18, etapa: "Alvenaria e Paredes", descricao: "Execução da elevação das paredes do Bloco B.", foto: "https://images.unsplash.com/photo-1541888946425-d0fbb186a5b7?auto=format&fit=crop&w=600&q=80" }
+      ],
+      plsStages: [
+        { id: 201, obraId: 1, nome: "1. Fundação e Baldrame", valor: 60000.00, pct: 100, status: "Concluído / Liberado" },
+        { id: 202, obraId: 1, nome: "2. Alvenaria Estrutural", valor: 120000.00, pct: 85, status: "Pronto p/ Vistoria CEF" },
+        { id: 203, obraId: 1, nome: "3. Cobertura & Telhado", valor: 90000.00, pct: 40, status: "Em Andamento" }
+      ],
+      financeiro: [
+        { id: 301, obraId: 1, data: "2026-10-15", tipo: "Entrada (Repasse Caixa)", status: "✅ Pago / Recebido", desc: "Liberacao Parcela #01 CEF", valor: 60000.00 },
+        { id: 302, obraId: 1, data: "2026-10-16", tipo: "Saída (Material/Insumo)", status: "✅ Pago / Recebido", desc: "Compra de blocos e cimento", valor: -18500.00 }
+      ]
+    };
+
+    function init() {
+      const saved = localStorage.getItem('melo_app_v2');
+      if (saved) { state = JSON.parse(saved); } else { saveState(); }
+      render();
+    }
+
+    function saveState() {
+      localStorage.setItem('melo_app_v2', JSON.stringify(state));
+      syncChannel.postMessage('sync');
+    }
+
+    syncChannel.onmessage = () => {
+      const saved = localStorage.getItem('melo_app_v2');
+      if (saved) { state = JSON.parse(saved); render(); }
+    };
+
+    function triggerSync() {
+      state.dataRef = document.getElementById('globalDateSelect').value;
+      saveState(); render();
+    }
+
+    function changeObraGlobal(val) {
+      state.selectedObraId = parseInt(val);
+      saveState(); render();
+    }
+
+    function changeRole(role) {
+      state.role = role;
+      saveState(); render();
+    }
+
+    function showTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('bg-dourado', 'text-oliva-dark', 'font-semibold'));
+      document.getElementById('tab-' + tab).classList.remove('hidden');
+      const b = document.getElementById('nav-' + tab);
+      if(b) b.classList.add('bg-dourado', 'text-oliva-dark', 'font-semibold');
+      lucide.createIcons();
+    }
+
+    // RENDERIZAÇÃO CENTRAL
+    function render() {
+      // Dropdown global de obras
+      const selObra = document.getElementById('globalObraSelect');
+      selObra.innerHTML = '';
+      state.obras.forEach(o => {
+        selObra.innerHTML += `<option value="${o.id}" ${o.id === state.selectedObraId ? 'selected' : ''}>🏗️ ${o.nome}</option>`;
+      });
+
+      const currentObra = state.obras.find(o => o.id === state.selectedObraId) || state.obras[0];
+
+      // Filtrar itens da obra atual
+      const currentRdos = state.rdos.filter(r => r.obraId === state.selectedObraId);
+      const currentPls = state.plsStages.filter(p => p.obraId === state.selectedObraId);
+      const currentFin = state.financeiro.filter(f => f.obraId === state.selectedObraId);
+
+      // Saldo da obra
+      const saldo = currentFin.reduce((acc, cur) => acc + cur.valor, 0);
+
+      // Avanço médio do PLS
+      const avgPls = currentPls.length > 0 ? (currentPls.reduce((a,c) => a + c.pct, 0) / currentPls.length) : 0;
+
+      // KPIs
+      document.getElementById('kpi-saldo').innerText = 'R$ ' + saldo.toLocaleString('pt-BR', {minimumFractionDigits:2});
+      document.getElementById('kpi-pls').innerText = avgPls.toFixed(1) + '%';
+      document.getElementById('kpi-pls-bar').style.width = avgPls + '%';
+      document.getElementById('kpi-unidades').innerText = (currentObra ? currentObra.unidades : 0) + ' Unidades';
+      document.getElementById('kpi-operarios').innerText = (currentRdos.length > 0 ? currentRdos[0].efetivo : 0) + ' Operários';
+
+      // Live Feed
+      const feed = document.getElementById('liveFeedContainer');
+      feed.innerHTML = currentRdos.length === 0 ? '<p class="text-xs text-gray-400">Nenhum registro ainda.</p>' : '';
+      currentRdos.forEach(r => {
+        feed.innerHTML += `
+          <div class="p-3 bg-gray-50 rounded-lg border-l-4 border-dourado text-xs">
+            <div class="flex justify-between text-gray-500 mb-1">
+              <span class="font-bold text-oliva-dark">${r.autor}</span>
+              <span>${r.dataHora}</span>
+            </div>
+            <p class="text-gray-800 font-medium">${r.descricao}</p>
+          </div>
+        `;
+      });
+
+      // Tabela Obras
+      const oTable = document.getElementById('obrasTable');
+      oTable.innerHTML = '';
+      state.obras.forEach(o => {
+        oTable.innerHTML += `
+          <tr class="hover:bg-gray-50">
+            <td class="p-3 font-bold text-oliva-dark">${o.nome}</td>
+            <td class="p-3 text-gray-600">${o.endereco}</td>
+            <td class="p-3 font-semibold">${o.unidades} un.</td>
+            <td class="p-3 font-bold">R$ ${o.orcamento.toLocaleString('pt-BR')}</td>
+            <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-dourado-light text-oliva-dark">${o.status}</span></td>
+            <td class="p-3 text-center">
+              <button onclick="editObra(${o.id})" class="px-2 py-1 bg-blue-600 text-white rounded text-[10px] font-bold">Editar</button>
+              <button onclick="deleteObra(${o.id})" class="px-2 py-1 bg-red-600 text-white rounded text-[10px] font-bold ml-1">Excluir</button>
+            </td>
+          </tr>
+        `;
+      });
+
+      // Tabela RDO com Ações
+      const rTable = document.getElementById('rdoHistoryTable');
+      rTable.innerHTML = '';
+      currentRdos.forEach(r => {
+        rTable.innerHTML += `
+          <tr class="hover:bg-gray-50">
+            <td class="p-2.5 font-mono">${r.dataHora}</td>
+            <td class="p-2.5 font-bold">${r.autor}</td>
+            <td class="p-2.5">${r.clima}</td>
+            <td class="p-2.5 font-bold">${r.efetivo} op.</td>
+            <td class="p-2.5">${r.descricao}</td>
+            <td class="p-2.5 text-center">${r.foto ? `<a href="${r.foto}" target="_blank" class="text-dourado-dark underline font-bold">Ver Foto</a>` : '-'}</td>
+            <td class="p-2.5 text-center">
+              <button onclick="editRdo(${r.id})" class="text-blue-600 font-bold underline mr-1">Editar</button>
+              <button onclick="deleteRdo(${r.id})" class="text-red-600 font-bold underline">Excluir</button>
+            </td>
+          </tr>
+        `;
+      });
+
+      // Tabela PLS
+      const pContainer = document.getElementById('plsListContainer');
+      pContainer.innerHTML = '';
+      currentPls.forEach(p => {
+        pContainer.innerHTML += `
+          <div class="p-4 bg-gray-50 rounded-xl border border-gray-200 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-xs text-oliva-dark">${p.nome}</span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-dourado text-oliva-dark">${p.status}</span>
+              </div>
+              <p class="text-[11px] text-gray-500 mt-1">Valor Parcela: R$ ${p.valor.toLocaleString('pt-BR')}</p>
+            </div>
+            <div class="w-full md:w-64">
+              <div class="flex justify-between text-xs mb-1 font-semibold">
+                <span>Progresso:</span><span>${p.pct}%</span>
+              </div>
+              <div class="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+                <div class="bg-oliva h-2" style="width: ${p.pct}%"></div>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="editPls(${p.id})" class="px-3 py-1.5 bg-blue-600 text-white text-xs font-bold rounded">Editar Status</button>
+              <button onclick="deletePls(${p.id})" class="px-2 py-1.5 bg-red-600 text-white text-xs font-bold rounded">Excluir</button>
+            </div>
+          </div>
+        `;
+      });
+
+      // Tabela Financeira com Ações
+      const fTable = document.getElementById('financeiroTable');
+      fTable.innerHTML = '';
+      currentFin.forEach(f => {
+        const isEntrada = f.valor > 0;
+        fTable.innerHTML += `
+          <tr class="hover:bg-gray-50">
+            <td class="p-2.5 font-mono">${f.data}</td>
+            <td class="p-2.5 font-bold text-[10px]">${f.status}</td>
+            <td class="p-2.5 font-medium">${f.desc}</td>
+            <td class="p-2.5 text-right font-bold ${isEntrada ? 'text-emerald-600':'text-red-600'}">R$ ${Math.abs(f.valor).toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
+            <td class="p-2.5 text-center">
+              <button onclick="editFin(${f.id})" class="text-blue-600 font-bold underline mr-1">Editar</button>
+              <button onclick="deleteFin(${f.id})" class="text-red-600 font-bold underline">Excluir</button>
+            </td>
+          </tr>
+        `;
+      });
+
+      // Relatório Executivo
+      document.getElementById('repObra').innerText = currentObra ? currentObra.nome : '-';
+      document.getElementById('repAvisoFisico').innerText = avgPls.toFixed(1) + '%';
+      document.getElementById('repSaldoCaixa').innerText = 'R$ ' + saldo.toLocaleString('pt-BR', {minimumFractionDigits:2});
+      document.getElementById('repUnidades').innerText = (currentObra ? currentObra.unidades : 0) + ' Unid.';
+
+      lucide.createIcons();
+    }
+
+    // --- CRUD DE OBRAS ---
+    function openObraModal() {
+      document.getElementById('obraEditId').value = '';
+      document.getElementById('obraNome').value = '';
+      document.getElementById('obraEndereco').value = '';
+      document.getElementById('obraUnidades').value = '';
+      document.getElementById('obraOrcamento').value = '';
+      document.getElementById('obraModal').classList.remove('hidden');
+    }
+    function closeObraModal() { document.getElementById('obraModal').classList.add('hidden'); }
+
+    function saveObra(e) {
+      e.preventDefault();
+      const id = document.getElementById('obraEditId').value;
+      const data = {
+        id: id ? parseInt(id) : Date.now(),
+        nome: document.getElementById('obraNome').value,
+        endereco: document.getElementById('obraEndereco').value,
+        unidades: parseInt(document.getElementById('obraUnidades').value) || 0,
+        orcamento: parseFloat(document.getElementById('obraOrcamento').value) || 0,
+        status: document.getElementById('obraStatus').value
+      };
+
+      if (id) {
+        const idx = state.obras.findIndex(o => o.id === parseInt(id));
+        if (idx !== -1) state.obras[idx] = data;
+      } else {
+        state.obras.push(data);
+      }
+      closeObraModal();
+      saveState(); render();
+    }
+
+    function editObra(id) {
+      const o = state.obras.find(x => x.id === id);
+      if(!o) return;
+      document.getElementById('obraEditId').value = o.id;
+      document.getElementById('obraNome').value = o.nome;
+      document.getElementById('obraEndereco').value = o.endereco;
+      document.getElementById('obraUnidades').value = o.unidades;
+      document.getElementById('obraOrcamento').value = o.orcamento;
+      document.getElementById('obraStatus').value = o.status;
+      document.getElementById('obraModal').classList.remove('hidden');
+    }
+
+    function deleteObra(id) {
+      if(confirm('Deseja excluir esta obra?')) {
+        state.obras = state.obras.filter(o => o.id !== id);
+        saveState(); render();
+      }
+    }
+
+    // --- RDO & FOTO DE CÂMERA ---
+    let tempImageBase64 = null;
+    function previewImage(e) {
+      const file = e.target.files[0];
+      if (file) {
+        document.getElementById('fileNameDisplay').innerText = "Foto capturada: " + file.name;
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          tempImageBase64 = evt.target.result;
+          document.getElementById('imagePreview').src = tempImageBase64;
+          document.getElementById('imagePreviewContainer').classList.remove('hidden');
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function saveRDO(e) {
+      e.preventDefault();
+      const editId = document.getElementById('rdoEditId').value;
+      const rdoData = {
+        id: editId ? parseInt(editId) : Date.now(),
+        obraId: state.selectedObraId,
+        dataHora: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}),
+        autor: state.role === 'mestre' ? 'Mestre Raimundo' : 'Samuel Melo',
+        clima: document.getElementById('rdoClima').value,
+        efetivo: parseInt(document.getElementById('rdoEfetivo').value) || 0,
+        etapa: document.getElementById('rdoEtapa').value,
+        descricao: document.getElementById('rdoDescricao').value,
+        foto: tempImageBase64 || "https://images.unsplash.com/photo-1541888946425-d0fbb186a5b7?auto=format&fit=crop&w=600&q=80"
+      };
+
+      if(editId) {
+        const idx = state.rdos.findIndex(r => r.id === parseInt(editId));
+        if(idx !== -1) state.rdos[idx] = rdoData;
+      } else {
+        state.rdos.unshift(rdoData);
+      }
+
+      cancelRDOEdit();
+      saveState(); render();
+      alert('✅ Diário de Obra salvo com foto!');
+    }
+
+    function editRdo(id) {
+      const r = state.rdos.find(x => x.id === id);
+      if(!r) return;
+      document.getElementById('rdoEditId').value = r.id;
+      document.getElementById('rdoClima').value = r.clima;
+      document.getElementById('rdoEfetivo').value = r.efetivo;
+      document.getElementById('rdoEtapa').value = r.etapa;
+      document.getElementById('rdoDescricao').value = r.descricao;
+      document.getElementById('btnCancelRdo').classList.remove('hidden');
+    }
+
+    function cancelRDOEdit() {
+      document.getElementById('rdoForm').reset();
+      document.getElementById('rdoEditId').value = '';
+      document.getElementById('btnCancelRdo').classList.add('hidden');
+      document.getElementById('imagePreviewContainer').classList.add('hidden');
+      tempImageBase64 = null;
+    }
+
+    function deleteRdo(id) {
+      if(confirm('Excluir este RDO?')) {
+        state.rdos = state.rdos.filter(r => r.id !== id);
+        saveState(); render();
+      }
+    }
+
+    // --- CRUD PLS ---
+    function openPlsModal() {
+      document.getElementById('plsEditId').value = '';
+      document.getElementById('plsNome').value = '';
+      document.getElementById('plsValor').value = '';
+      document.getElementById('plsPct').value = 0;
+      document.getElementById('plsModal').classList.remove('hidden');
+    }
+    function closePlsModal() { document.getElementById('plsModal').classList.add('hidden'); }
+
+    function savePlsStage(e) {
+      e.preventDefault();
+      const id = document.getElementById('plsEditId').value;
+      const data = {
+        id: id ? parseInt(id) : Date.now(),
+        obraId: state.selectedObraId,
+        nome: document.getElementById('plsNome').value,
+        valor: parseFloat(document.getElementById('plsValor').value) || 0,
+        status: document.getElementById('plsStatus').value,
+        pct: parseInt(document.getElementById('plsPct').value) || 0
+      };
+
+      if(id) {
+        const idx = state.plsStages.findIndex(p => p.id === parseInt(id));
+        if(idx !== -1) state.plsStages[idx] = data;
+      } else {
+        state.plsStages.push(data);
+      }
+      closePlsModal();
+      saveState(); render();
+    }
+
+    function editPls(id) {
+      const p = state.plsStages.find(x => x.id === id);
+      if(!p) return;
+      document.getElementById('plsEditId').value = p.id;
+      document.getElementById('plsNome').value = p.nome;
+      document.getElementById('plsValor').value = p.valor;
+      document.getElementById('plsStatus').value = p.status;
+      document.getElementById('plsPct').value = p.pct;
+      document.getElementById('plsModal').classList.remove('hidden');
+    }
+
+    function deletePls(id) {
+      if(confirm('Excluir etapa do PLS?')) {
+        state.plsStages = state.plsStages.filter(p => p.id !== id);
+        saveState(); render();
+      }
+    }
+
+    // --- CRUD FINANCEIRO ---
+    function saveFinanceiro(e) {
+      e.preventDefault();
+      const id = document.getElementById('finEditId').value;
+      const tipo = document.getElementById('finTipo').value;
+      let val = parseFloat(document.getElementById('finValor').value) || 0;
+      if(tipo.includes('Saída')) val = -Math.abs(val); else val = Math.abs(val);
+
+      const item = {
+        id: id ? parseInt(id) : Date.now(),
+        obraId: state.selectedObraId,
+        data: document.getElementById('finData').value,
+        tipo: tipo,
+        status: document.getElementById('finStatus').value,
+        desc: document.getElementById('finDescricao').value,
+        valor: val
+      };
+
+      if(id) {
+        const idx = state.financeiro.findIndex(f => f.id === parseInt(id));
+        if(idx !== -1) state.financeiro[idx] = item;
+      } else {
+        state.financeiro.unshift(item);
+      }
+
+      cancelFinEdit();
+      saveState(); render();
+    }
+
+    function editFin(id) {
+      const f = state.financeiro.find(x => x.id === id);
+      if(!f) return;
+      document.getElementById('finEditId').value = f.id;
+      document.getElementById('finTipo').value = f.tipo;
+      document.getElementById('finStatus').value = f.status;
+      document.getElementById('finDescricao').value = f.desc;
+      document.getElementById('finValor').value = Math.abs(f.valor);
+      document.getElementById('finData').value = f.data;
+      document.getElementById('btnCancelFin').classList.remove('hidden');
+    }
+
+    function cancelFinEdit() {
+      document.getElementById('finEditId').value = '';
+      document.getElementById('finDescricao').value = '';
+      document.getElementById('finValor').value = '';
+      document.getElementById('btnCancelFin').classList.add('hidden');
+    }
+
+    function deleteFin(id) {
+      if(confirm('Excluir lançamento financeiro?')) {
+        state.financeiro = state.financeiro.filter(f => f.id !== id);
+        saveState(); render();
+      }
+    }
+
+    // EXP. PDF & WHATSAPP
+    function downloadPDF() {
+      const element = document.getElementById('pdfReportArea');
+      html2pdf().set({ margin: 0.3, filename: `Relatorio_Melo_Obra_${state.dataRef}.pdf`, html2canvas:{scale:2} }).from(element).save();
+    }
+
+    function sendWhatsApp() {
+      const currentObra = state.obras.find(o => o.id === state.selectedObraId);
+      const texto = `*MELO ENGENHARIA - RELATÓRIO DE OBRA*%0A` +
+        `🏗️ *Obra:* ${currentObra ? currentObra.nome : ''}%0A` +
+        `📅 *Data:* ${state.dataRef}%0A` +
+        `📊 *Avanço PLS:* ${document.getElementById('kpi-pls').innerText}%0A` +
+        `💰 *Saldo em Caixa:* ${document.getElementById('kpi-saldo').innerText}`;
+      window.open(`https://api.whatsapp.com/send?text=${texto}`, '_blank');
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
